@@ -1,0 +1,1183 @@
+{
+  "info": {
+    "name": "Optiva API",
+    "description": "Full test collection for the Optiva lifestyle transformation REST API.\n\n**Setup:**\n1. Run `01 Register` or `02 Login` — access & refresh tokens are saved automatically as collection variables.\n2. All other requests use `{{accessToken}}` from the Bearer auth header.\n3. After creating a resource, copy its `id` into the matching `*Id` collection variable.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api/v1" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "programId", "value": "" },
+    { "key": "checkpointId", "value": "" },
+    { "key": "weightId", "value": "" },
+    { "key": "mealPlanId", "value": "" },
+    { "key": "workoutPlanId", "value": "" },
+    { "key": "habitId", "value": "" },
+    { "key": "habitLogId", "value": "" },
+    { "key": "journalId", "value": "" },
+    { "key": "smokingLogId", "value": "" },
+    { "key": "alcoholLogId", "value": "" },
+    { "key": "progressEntryId", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "1 - Auth",
+      "item": [
+        {
+          "name": "01 Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('accessToken', json.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', json.refreshToken);",
+                  "  pm.test('Register successful', () => pm.response.to.have.status(201));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@optiva.app\",\n  \"password\": \"Password1!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
+            }
+          }
+        },
+        {
+          "name": "02 Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('accessToken', json.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', json.refreshToken);",
+                  "  pm.test('Login successful', () => pm.response.to.have.status(200));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@optiva.app\",\n  \"password\": \"Password1!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "03 Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('accessToken', json.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', json.refreshToken);",
+                  "  pm.test('Token refreshed', () => pm.response.to.have.status(200));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "04 Logout",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "05 Logout All Devices",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout-all",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout-all"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "2 - Profile",
+      "item": [
+        {
+          "name": "01 Get Profile",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile"]
+            }
+          }
+        },
+        {
+          "name": "02 Create / Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"age\": 28,\n  \"heightCm\": 178.0,\n  \"startingWeightKg\": 92.5,\n  \"targetWeightKg\": 78.0,\n  \"timezone\": \"Asia/Colombo\",\n  \"gender\": \"MALE\"\n}"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "3 - Programs & Checkpoints",
+      "item": [
+        {
+          "name": "01 Create Program",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('programId', json.id);",
+                  "  if (json.checkpoints && json.checkpoints.length > 0) {",
+                  "    pm.collectionVariables.set('checkpointId', json.checkpoints[0].id);",
+                  "  }",
+                  "  pm.test('Program created', () => pm.response.to.have.status(201));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/programs",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startDate\": \"2026-03-01\",\n  \"notes\": \"My 2026 transformation journey\"\n}"
+            }
+          }
+        },
+        {
+          "name": "02 Get All Programs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/programs",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs"]
+            }
+          }
+        },
+        {
+          "name": "03 Get Program By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/programs/{{programId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "{{programId}}"]
+            }
+          }
+        },
+        {
+          "name": "04 Update Program",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/programs/{{programId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "{{programId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startDate\": \"2026-03-01\",\n  \"notes\": \"Updated journey notes\"\n}"
+            }
+          }
+        },
+        {
+          "name": "05 Update Checkpoint",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/programs/{{programId}}/checkpoints/{{checkpointId}}",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "programs",
+                "{{programId}}",
+                "checkpoints",
+                "{{checkpointId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACHIEVED\",\n  \"phase\": \"CUT_1\",\n  \"focusTags\": [\"CARDIO\", \"ABS\"],\n  \"targetMetrics\": {\n    \"targetWeightChangeKg\": -6.0,\n    \"targetWaistChangeCm\": -5.0,\n    \"trainingDaysPerWeek\": 4,\n    \"stepsAverage\": 9000,\n    \"dietComplianceTarget\": 80\n  },\n  \"targetWeightKg\": 85.0,\n  \"notes\": \"Hit my 12-week fat loss target!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "06 Regenerate Checkpoints",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.length > 0) pm.collectionVariables.set('checkpointId', json[0].id);",
+                  "  pm.test('Regenerated', () => pm.response.to.have.status(200));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/programs/{{programId}}/checkpoints/regenerate",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "{{programId}}", "checkpoints", "regenerate"]
+            }
+          }
+        },
+        {
+          "name": "07 Evaluate Checkpoint",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/programs/{{programId}}/checkpoints/{{checkpointId}}/evaluate",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "programs",
+                "{{programId}}",
+                "checkpoints",
+                "{{checkpointId}}",
+                "evaluate"
+              ]
+            }
+          }
+        },
+        {
+          "name": "08 Log Progress Entry",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('progressEntryId', pm.response.json().id);",
+                  "  pm.test('Progress logged', () => pm.response.to.have.status(201));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/programs/{{programId}}/progress",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "{{programId}}", "progress"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-02-25\",\n  \"weightKg\": 89.5,\n  \"waistCm\": 91.0,\n  \"stepsAvg\": 9500,\n  \"workoutsCompleted\": 4,\n  \"dietComplianceScore\": 82,\n  \"notes\": \"Good week — hit all sessions.\",\n  \"photos\": [\"https://cdn.optiva.app/progress/p1.jpg\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "09 Get Progress Entries (all)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/programs/{{programId}}/progress",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "{{programId}}", "progress"]
+            }
+          }
+        },
+        {
+          "name": "10 Get Progress Entries (date range)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/programs/{{programId}}/progress?from=2026-02-01&to=2026-02-28",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "{{programId}}", "progress"],
+              "query": [
+                { "key": "from", "value": "2026-02-01" },
+                { "key": "to", "value": "2026-02-28" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "11 Delete Progress Entry",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/programs/{{programId}}/progress/{{progressEntryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "programs",
+                "{{programId}}",
+                "progress",
+                "{{progressEntryId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "12 Delete Program",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/programs/{{programId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "{{programId}}"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "4 - Weight Tracking",
+      "item": [
+        {
+          "name": "01 Log Weight Entry",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('weightId', pm.response.json().id);",
+                  "  pm.test('Weight logged', () => pm.response.to.have.status(201));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/weight",
+              "host": ["{{baseUrl}}"],
+              "path": ["weight"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entryDate\": \"2026-02-25\",\n  \"weightKg\": 91.2,\n  \"notes\": \"Morning weigh-in\"\n}"
+            }
+          }
+        },
+        {
+          "name": "02 Get All Weight Entries",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/weight",
+              "host": ["{{baseUrl}}"],
+              "path": ["weight"]
+            }
+          }
+        },
+        {
+          "name": "03 Get Weight Entry By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/weight/{{weightId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["weight", "{{weightId}}"]
+            }
+          }
+        },
+        {
+          "name": "04 Update Weight Entry",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/weight/{{weightId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["weight", "{{weightId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entryDate\": \"2026-02-25\",\n  \"weightKg\": 90.8,\n  \"notes\": \"Corrected entry\"\n}"
+            }
+          }
+        },
+        {
+          "name": "05 Get Weight Stats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/weight/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["weight", "stats"]
+            }
+          }
+        },
+        {
+          "name": "06 Delete Weight Entry",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/weight/{{weightId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["weight", "{{weightId}}"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "5 - Meal Planning",
+      "item": [
+        {
+          "name": "01 Create Meal Plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('mealPlanId', pm.response.json().id);",
+                  "  pm.test('Meal plan created', () => pm.response.to.have.status(201));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/meal-plans",
+              "host": ["{{baseUrl}}"],
+              "path": ["meal-plans"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"weekStartDate\": \"2026-02-23\",\n  \"days\": [\n    {\n      \"dayOfWeek\": 1,\n      \"meals\": [\n        {\n          \"mealType\": \"BREAKFAST\",\n          \"items\": [\n            { \"name\": \"Oats\", \"portion\": \"80g\", \"calories\": 300, \"proteinG\": 10, \"carbsG\": 54, \"fatG\": 5 },\n            { \"name\": \"Banana\", \"portion\": \"1 medium\", \"calories\": 90, \"proteinG\": 1, \"carbsG\": 23, \"fatG\": 0 }\n          ]\n        },\n        {\n          \"mealType\": \"LUNCH\",\n          \"items\": [\n            { \"name\": \"Grilled Chicken\", \"portion\": \"150g\", \"calories\": 250, \"proteinG\": 45, \"carbsG\": 0, \"fatG\": 6 },\n            { \"name\": \"Brown Rice\", \"portion\": \"100g cooked\", \"calories\": 130, \"proteinG\": 3, \"carbsG\": 28, \"fatG\": 1 }\n          ]\n        },\n        {\n          \"mealType\": \"DINNER\",\n          \"items\": [\n            { \"name\": \"Salmon\", \"portion\": \"180g\", \"calories\": 350, \"proteinG\": 40, \"carbsG\": 0, \"fatG\": 18 },\n            { \"name\": \"Steamed Broccoli\", \"portion\": \"200g\", \"calories\": 55, \"proteinG\": 4, \"carbsG\": 11, \"fatG\": 0 }\n          ]\n        }\n      ]\n    },\n    {\n      \"dayOfWeek\": 2,\n      \"meals\": [\n        {\n          \"mealType\": \"BREAKFAST\",\n          \"items\": [\n            { \"name\": \"Eggs\", \"portion\": \"3 whole\", \"calories\": 210, \"proteinG\": 18, \"carbsG\": 1, \"fatG\": 15 }\n          ]\n        }\n      ]\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "02 Get All Meal Plans",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/meal-plans",
+              "host": ["{{baseUrl}}"],
+              "path": ["meal-plans"]
+            }
+          }
+        },
+        {
+          "name": "03 Get Meal Plan By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/meal-plans/{{mealPlanId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["meal-plans", "{{mealPlanId}}"]
+            }
+          }
+        },
+        {
+          "name": "04 Update Meal Plan",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/meal-plans/{{mealPlanId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["meal-plans", "{{mealPlanId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"weekStartDate\": \"2026-02-23\",\n  \"days\": [\n    {\n      \"dayOfWeek\": 1,\n      \"meals\": [\n        {\n          \"mealType\": \"BREAKFAST\",\n          \"items\": [\n            { \"name\": \"Greek Yogurt\", \"portion\": \"200g\", \"calories\": 130, \"proteinG\": 17, \"carbsG\": 6, \"fatG\": 4 }\n          ]\n        }\n      ]\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "05 Copy Last Week",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/meal-plans/copy-last-week?weekStartDate=2026-03-02",
+              "host": ["{{baseUrl}}"],
+              "path": ["meal-plans", "copy-last-week"],
+              "query": [{ "key": "weekStartDate", "value": "2026-03-02" }]
+            }
+          }
+        },
+        {
+          "name": "06 Delete Meal Plan",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/meal-plans/{{mealPlanId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["meal-plans", "{{mealPlanId}}"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "6 - Workout Planning",
+      "item": [
+        {
+          "name": "01 Create Workout Plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('workoutPlanId', pm.response.json().id);",
+                  "  pm.test('Workout plan created', () => pm.response.to.have.status(201));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/workout-plans",
+              "host": ["{{baseUrl}}"],
+              "path": ["workout-plans"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"weekStartDate\": \"2026-02-23\",\n  \"days\": [\n    {\n      \"dayOfWeek\": 1,\n      \"sessions\": [\n        {\n          \"name\": \"Upper Body Strength\",\n          \"orderIndex\": 1,\n          \"exercises\": [\n            { \"name\": \"Bench Press\", \"sets\": 4, \"reps\": 8, \"weightKg\": 80.0, \"orderIndex\": 1 },\n            { \"name\": \"Pull-ups\", \"sets\": 3, \"reps\": 10, \"orderIndex\": 2 },\n            { \"name\": \"Overhead Press\", \"sets\": 3, \"reps\": 10, \"weightKg\": 50.0, \"orderIndex\": 3 }\n          ]\n        }\n      ]\n    },\n    {\n      \"dayOfWeek\": 3,\n      \"sessions\": [\n        {\n          \"name\": \"Cardio\",\n          \"orderIndex\": 1,\n          \"exercises\": [\n            { \"name\": \"Running\", \"durationMin\": 30.0, \"orderIndex\": 1 },\n            { \"name\": \"Jump Rope\", \"durationMin\": 10.0, \"orderIndex\": 2 }\n          ]\n        }\n      ]\n    },\n    {\n      \"dayOfWeek\": 5,\n      \"sessions\": [\n        {\n          \"name\": \"Lower Body\",\n          \"orderIndex\": 1,\n          \"exercises\": [\n            { \"name\": \"Squats\", \"sets\": 4, \"reps\": 10, \"weightKg\": 100.0, \"orderIndex\": 1 },\n            { \"name\": \"Romanian Deadlift\", \"sets\": 3, \"reps\": 12, \"weightKg\": 80.0, \"orderIndex\": 2 }\n          ]\n        }\n      ]\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "02 Get All Workout Plans",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/workout-plans",
+              "host": ["{{baseUrl}}"],
+              "path": ["workout-plans"]
+            }
+          }
+        },
+        {
+          "name": "03 Get Workout Plan By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/workout-plans/{{workoutPlanId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["workout-plans", "{{workoutPlanId}}"]
+            }
+          }
+        },
+        {
+          "name": "04 Update Workout Plan",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/workout-plans/{{workoutPlanId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["workout-plans", "{{workoutPlanId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"weekStartDate\": \"2026-02-23\",\n  \"days\": [\n    {\n      \"dayOfWeek\": 2,\n      \"sessions\": [\n        {\n          \"name\": \"Full Body Circuit\",\n          \"orderIndex\": 1,\n          \"exercises\": [\n            { \"name\": \"Burpees\", \"sets\": 4, \"reps\": 15, \"orderIndex\": 1 },\n            { \"name\": \"Push-ups\", \"sets\": 3, \"reps\": 20, \"orderIndex\": 2 }\n          ]\n        }\n      ]\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "05 Delete Workout Plan",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/workout-plans/{{workoutPlanId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["workout-plans", "{{workoutPlanId}}"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "7 - Habits & Logs",
+      "item": [
+        {
+          "name": "01 Create Habit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('habitId', pm.response.json().id);",
+                  "  pm.test('Habit created', () => pm.response.to.have.status(201));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/habits",
+              "host": ["{{baseUrl}}"],
+              "path": ["habits"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Drink 2L water\",\n  \"description\": \"Stay hydrated throughout the day\",\n  \"isActive\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "02 Get All Habits",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/habits",
+              "host": ["{{baseUrl}}"],
+              "path": ["habits"]
+            }
+          }
+        },
+        {
+          "name": "03 Get Habit By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/habits/{{habitId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["habits", "{{habitId}}"]
+            }
+          }
+        },
+        {
+          "name": "04 Update Habit",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/habits/{{habitId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["habits", "{{habitId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Drink 3L water\",\n  \"description\": \"Increased hydration goal\",\n  \"isActive\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "05 Log Habit (upsert)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('habitLogId', pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/habits/{{habitId}}/logs",
+              "host": ["{{baseUrl}}"],
+              "path": ["habits", "{{habitId}}", "logs"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logDate\": \"2026-02-25\",\n  \"status\": \"DONE\",\n  \"notes\": \"Drank 2.5L today\"\n}"
+            }
+          }
+        },
+        {
+          "name": "06 Get Habit Logs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/habits/{{habitId}}/logs",
+              "host": ["{{baseUrl}}"],
+              "path": ["habits", "{{habitId}}", "logs"]
+            }
+          }
+        },
+        {
+          "name": "07 Get Habit Analytics",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/habits/{{habitId}}/analytics",
+              "host": ["{{baseUrl}}"],
+              "path": ["habits", "{{habitId}}", "analytics"]
+            }
+          }
+        },
+        {
+          "name": "08 Delete Habit",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/habits/{{habitId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["habits", "{{habitId}}"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "8 - Daily Journal",
+      "item": [
+        {
+          "name": "01 Create Journal Entry",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('journalId', pm.response.json().id);",
+                  "  pm.test('Journal created', () => pm.response.to.have.status(201));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/journal",
+              "host": ["{{baseUrl}}"],
+              "path": ["journal"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entryDate\": \"2026-02-25\",\n  \"ateNotes\": \"Stuck to my meal plan today. Had oats for breakfast.\",\n  \"tags\": \"productive,healthy\",\n  \"mood\": 8,\n  \"emotions\": \"Energetic and focused\",\n  \"notes\": \"Great day overall. Completed all workouts.\",\n  \"energy\": 9,\n  \"sleepHours\": 7.5,\n  \"stress\": 3\n}"
+            }
+          }
+        },
+        {
+          "name": "02 Get All Journal Entries",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/journal",
+              "host": ["{{baseUrl}}"],
+              "path": ["journal"]
+            }
+          }
+        },
+        {
+          "name": "03 Get Journal Entry By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/journal/{{journalId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["journal", "{{journalId}}"]
+            }
+          }
+        },
+        {
+          "name": "04 Update Journal Entry",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/journal/{{journalId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["journal", "{{journalId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entryDate\": \"2026-02-25\",\n  \"ateNotes\": \"Updated: Had an extra snack in the evening.\",\n  \"tags\": \"productive,healthy,updated\",\n  \"mood\": 7,\n  \"emotions\": \"A bit tired in the evening\",\n  \"notes\": \"Good day but tired later.\",\n  \"energy\": 7,\n  \"sleepHours\": 7.5,\n  \"stress\": 4\n}"
+            }
+          }
+        },
+        {
+          "name": "05 Delete Journal Entry",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/journal/{{journalId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["journal", "{{journalId}}"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "9 - Smoking Tracking",
+      "item": [
+        {
+          "name": "01 Log Smoking",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('smokingLogId', pm.response.json().id);",
+                  "  pm.test('Smoking log created', () => pm.response.to.have.status(201));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/smoking",
+              "host": ["{{baseUrl}}"],
+              "path": ["smoking"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logDate\": \"2026-02-25\",\n  \"cigarettesCount\": 5,\n  \"smokeFree\": false,\n  \"cravings\": 7,\n  \"notes\": \"Stressful day at work\"\n}"
+            }
+          }
+        },
+        {
+          "name": "02 Log Smoke-Free Day",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/smoking",
+              "host": ["{{baseUrl}}"],
+              "path": ["smoking"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logDate\": \"2026-02-24\",\n  \"cigarettesCount\": 0,\n  \"smokeFree\": true,\n  \"cravings\": 4,\n  \"notes\": \"Made it through the day!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "03 Get All Smoking Logs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/smoking",
+              "host": ["{{baseUrl}}"],
+              "path": ["smoking"]
+            }
+          }
+        },
+        {
+          "name": "04 Get Smoking Log By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/smoking/{{smokingLogId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["smoking", "{{smokingLogId}}"]
+            }
+          }
+        },
+        {
+          "name": "05 Update Smoking Log",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/smoking/{{smokingLogId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["smoking", "{{smokingLogId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logDate\": \"2026-02-25\",\n  \"cigarettesCount\": 3,\n  \"smokeFree\": false,\n  \"cravings\": 5,\n  \"notes\": \"Cut down from 5 to 3\"\n}"
+            }
+          }
+        },
+        {
+          "name": "06 Get Smoking Analytics",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/smoking/analytics",
+              "host": ["{{baseUrl}}"],
+              "path": ["smoking", "analytics"]
+            }
+          }
+        },
+        {
+          "name": "07 Delete Smoking Log",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/smoking/{{smokingLogId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["smoking", "{{smokingLogId}}"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "10 - Alcohol Tracking",
+      "item": [
+        {
+          "name": "01 Log Alcohol - Beer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('alcoholLogId', pm.response.json().id);",
+                  "  pm.test('Alcohol log created', () => pm.response.to.have.status(201));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/alcohol",
+              "host": ["{{baseUrl}}"],
+              "path": ["alcohol"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logDate\": \"2026-02-25\",\n  \"drinkType\": \"BEER\",\n  \"units\": 2.0,\n  \"volumeMl\": 500.0,\n  \"notes\": \"Two pints at the pub\"\n}"
+            }
+          }
+        },
+        {
+          "name": "02 Log Alcohol - Wine",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/alcohol",
+              "host": ["{{baseUrl}}"],
+              "path": ["alcohol"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logDate\": \"2026-02-24\",\n  \"drinkType\": \"WINE\",\n  \"units\": 1.5,\n  \"volumeMl\": 150.0,\n  \"notes\": \"Glass of red with dinner\"\n}"
+            }
+          }
+        },
+        {
+          "name": "03 Log Alcohol - Custom",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/alcohol",
+              "host": ["{{baseUrl}}"],
+              "path": ["alcohol"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logDate\": \"2026-02-23\",\n  \"drinkType\": \"CUSTOM\",\n  \"customName\": \"Coconut Arrack\",\n  \"units\": 3.0,\n  \"volumeMl\": 90.0,\n  \"notes\": \"Traditional drink at a function\"\n}"
+            }
+          }
+        },
+        {
+          "name": "04 Get All Alcohol Logs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/alcohol",
+              "host": ["{{baseUrl}}"],
+              "path": ["alcohol"]
+            }
+          }
+        },
+        {
+          "name": "05 Get Alcohol Log By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/alcohol/{{alcoholLogId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["alcohol", "{{alcoholLogId}}"]
+            }
+          }
+        },
+        {
+          "name": "06 Update Alcohol Log",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/alcohol/{{alcoholLogId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["alcohol", "{{alcoholLogId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logDate\": \"2026-02-25\",\n  \"drinkType\": \"BEER\",\n  \"units\": 1.0,\n  \"volumeMl\": 250.0,\n  \"notes\": \"Corrected to one pint only\"\n}"
+            }
+          }
+        },
+        {
+          "name": "07 Get Alcohol Analytics",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/alcohol/analytics",
+              "host": ["{{baseUrl}}"],
+              "path": ["alcohol", "analytics"]
+            }
+          }
+        },
+        {
+          "name": "08 Delete Alcohol Log",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/alcohol/{{alcoholLogId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["alcohol", "{{alcoholLogId}}"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "11 - Calendar",
+      "item": [
+        {
+          "name": "01 Get Calendar (current month)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/calendar?from=2026-02-01&to=2026-02-28",
+              "host": ["{{baseUrl}}"],
+              "path": ["calendar"],
+              "query": [
+                { "key": "from", "value": "2026-02-01" },
+                { "key": "to", "value": "2026-02-28" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "02 Get Calendar (7 days)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/calendar?from=2026-02-19&to=2026-02-25",
+              "host": ["{{baseUrl}}"],
+              "path": ["calendar"],
+              "query": [
+                { "key": "from", "value": "2026-02-19" },
+                { "key": "to", "value": "2026-02-25" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
