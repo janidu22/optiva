@@ -1,0 +1,26 @@
+# ─── Environment / Secrets ─────────────────────
+.env
+.env.*
+!.env.example
+
+# ─── IDE / Editor ──────────────────────────────
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# ─── OS ────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Build outputs ─────────────────────────────
+*.class
+*.jar
+*.war
+
+# ─── Temp files ────────────────────────────────
+*.tmp
+*.bak
+*.swp
+*~
