@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useSidebar } from "@/components/ui/sidebar";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -56,6 +57,7 @@ export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+  const { setOpenMobile, isMobile } = useSidebar();
 
   const handleLogout = useCallback(async () => {
     await logout();
@@ -73,7 +75,10 @@ export function AppSidebar() {
       <SidebarMenuItem key={item.path}>
         <SidebarMenuButton
           isActive={location.pathname === item.path}
-          onClick={() => navigate(item.path)}
+          onClick={() => {
+            navigate(item.path);
+            if (isMobile) setOpenMobile(false);
+          }}
           className="transition-all duration-200"
         >
           <item.icon className="h-4 w-4" />
@@ -86,7 +91,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2">
-          <img src="/mind.png" alt="Optivita" className="h-8 w-8 dark:invert" />
+          <img src="/logo.png" alt="Optivita" className="h-8 w-8 dark:invert" />
           <div className="flex flex-col">
             <span className="text-sm font-bold tracking-tight">Optivita</span>
             <span className="text-[10px] text-muted-foreground">

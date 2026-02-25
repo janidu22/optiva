@@ -118,8 +118,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html,
+  body {
+    height: 100%;
+  }
   html {
-    overflow-x: hidden;
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
   }
@@ -127,6 +130,15 @@
     @apply bg-background text-foreground;
     overflow-x: hidden;
     overscroll-behavior-y: contain;
+  }
+  #root {
+    min-height: 100%;
+  }
+
+  /* Ensure scrollable containers work on all devices */
+  [class*="overflow-y-auto"],
+  [class*="overflow-y-scroll"] {
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Custom scrollbar — subtle, themed */
