@@ -91,7 +91,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="Optivita" className="h-8 w-8 dark:invert" />
+          <img src="/mind.png" alt="Optivita" className="h-8 w-8 dark:invert" />
           <div className="flex flex-col">
             <span className="text-sm font-bold tracking-tight">Optivita</span>
             <span className="text-[10px] text-muted-foreground">
