@@ -4,7 +4,6 @@ import com.optivita.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -32,30 +31,32 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
 
-    // Because server.servlet.context-path=/api
+    // These paths are MATCHED INSIDE /api/** because of securityMatcher("/api/**")
     private static final String[] PUBLIC_URLS = {
-            "/",                 // so EB health check / browser root doesn't get 403
+            "/health",
             "/error",
-            "/api/health",       // your health endpoint
-            "/api/v1/auth/**",   // your auth endpoints (login/register/etc)
-
-            // Swagger (only if you actually use it in prod)
-            "/api/v3/api-docs/**",
-            "/api/swagger-ui/**",
-            "/api/swagger-ui.html"
+            "/v1/auth/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/swagger-ui/index.html"
     };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // IMPORTANT: your app context path is /api, so lock only /api/**
+                .securityMatcher("/api/**")
+
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(PUBLIC_URLS).permitAll()
                         .anyRequest().authenticated()
                 )
+
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -83,11 +84,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+
+        // IMPORTANT: no trailing slash in allowed origins
         configuration.setAllowedOrigins(List.of(
                 "https://optiva.vercel.app",
                 "http://localhost:5173",
                 "http://localhost:3000"
         ));
+
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
