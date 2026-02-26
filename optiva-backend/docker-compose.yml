@@ -1,0 +1,29 @@
+# ---- Build stage ----
+FROM maven:3.9.9-eclipse-temurin-21 AS build
+WORKDIR /app
+  
+  # Cache dependencies first
+COPY pom.xml .
+RUN mvn -q -e -DskipTests dependency:go-offline
+  
+  # Copy source and build
+COPY src ./src
+RUN mvn -q -DskipTests clean package
+  
+  # ---- Run stage ----
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+  
+  # Render uses PORT env var; default to 8080
+ENV PORT=8080
+EXPOSE 8080
+  
+  # Copy the built jar
+COPY --from=build /app/target/*.jar app.jar
+  
+  # Optional: run as non-root
+RUN useradd -m spring
+USER spring
+  
+  # Start
+ENTRYPOINT ["sh", "-c", "java -jar app.jar --server.port=${PORT}"]
