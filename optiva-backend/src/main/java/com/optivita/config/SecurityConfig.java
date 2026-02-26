@@ -88,6 +88,7 @@ public class SecurityConfig {
         // IMPORTANT: no trailing slash in allowed origins
         configuration.setAllowedOrigins(List.of(
                 "https://optiva.vercel.app",
+                "https://main.d2k85jtw014rhs.amplifyapp.com",
                 "http://localhost:5173",
                 "http://localhost:3000"
         ));
